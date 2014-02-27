@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -eu
+
+case "$1" in
+    configure)
+        update-initramfs -c -k all
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
