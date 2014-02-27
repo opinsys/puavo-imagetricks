@@ -52,7 +52,9 @@ if ! chroot ${rootmnt} /usr/bin/test -w "/" ; then
     # Move the current read-only root filesystem away from ${rootmnt} to /rofs
     mount -o move "${rootmnt}" /rofs
 
-    modprobe overlayfs
+    if ! modprobe overlayfs; then
+        panic "Failed to load overlayfs"
+    fi
 
     # Setup the read-only /rofs as the lower layer and writeable ${delta_dir}
     # as the upper layer of the overlayfs mount. Using this we see files from
