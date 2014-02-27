@@ -34,7 +34,7 @@ if ! chroot ${rootmnt} /usr/bin/test -w "/" ; then
         # If puavo.img.delta is set generate directory for persistent image
         # delta. Image name is forced to the delta_dir path to avoid
         # incompatible deltas between images.
-        if [ "${delta_name}" != ""]; then
+        if [ "${delta_name}" != "" ]; then
             delta_dir="/images/delta/${image_name}/${delta_name}"
             mkdir -p "${delta_dir}"
         fi
