@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# no prerequisites
+[ "$1" = "prereqs" ] && exit 0
+
+image_dev=
+image_name=
+delta_name=
+delta_dir=
+
+# mount writeable filesystems if / is not already mounted writeable.
+if ! chroot ${rootmnt} /usr/bin/test -w "/" ; then
+
+    for x in $(cat /proc/cmdline); do
+        case "$x" in
+            puavo.img.dev=*)
+            image_dev="${x#puavo.img.dev=}"
+        ;;
+            puavo.img.delta=*)
+            delta_name="${x#puavo.img.delta=}"
+        ;;
+        loop=*)
+            image_name=$(basename "${x#loop=}")
+        ;;
+        esac
+    done
+
+
+    # Mount /images if images device is given in puavo.img.dev
+    if [ "${image_dev}" != "" ]; then
+        mkdir -p /images
+        mount "${image_dev}" /images
+
+        # If puavo.img.delta is set generate directory for persistent image
+        # delta. Image name is forced to the delta_dir path to avoid
+        # incompatible deltas between images.
+        if [ "${delta_name}" != ""]; then
+            delta_dir="/images/delta/${image_name}/${delta_name}"
+            mkdir -p "${delta_dir}"
+        fi
+    fi
+
+    # Use tmpfs for writes if no specific delta dir is given
+    if [ "${delta_dir}" = "" ]; then
+        delta_dir=/cow
+        mkdir -p "${delta_dir}"
+        mount -t tmpfs -o mode=0755 tmpfs "${delta_dir}"
+    fi
+
+    mkdir -p /rofs
+
+    # Move the current read-only root filesystem away from ${rootmnt} to /rofs
+    mount -o move "${rootmnt}" /rofs
+
+    modprobe overlayfs
+
+    # Setup the read-only /rofs as the lower layer and writeable ${delta_dir}
+    # as the upper layer of the overlayfs mount. Using this we see files from
+    # /rofs in ${rootmnt} but all writes to ${rootmnt} will go actually into
+    # ${delta_dir}
+    mount -t overlayfs -o "upperdir=${delta_dir},lowerdir=/rofs" overlayfs "${rootmnt}"
+
+    # Move mounts to ${rootmnt} to make them visible to the operating system
+    for dir in /rofs /images "${delta_dir}" ; do
+        if [ -d "${dir}" ]; then
+            mkdir -p "${rootmnt}${dir}"
+            mount -o move "${dir}" "${rootmnt}${dir}"
+        fi
+    done
+fi

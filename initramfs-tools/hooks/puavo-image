@@ -1,0 +1,8 @@
+#!/bin/sh
+
+[ "$1" = "prereqs" ] && exit 0
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /usr/bin/basename
+
