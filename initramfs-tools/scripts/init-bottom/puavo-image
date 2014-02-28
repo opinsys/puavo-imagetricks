@@ -1,5 +1,8 @@
 #!/bin/sh
 
+set -eu
+set -x
+
 # no prerequisites
 [ "$1" = "prereqs" ] && exit 0
 
