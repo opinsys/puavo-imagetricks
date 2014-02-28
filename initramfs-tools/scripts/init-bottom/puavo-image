@@ -16,10 +16,10 @@ if ! chroot ${rootmnt} /usr/bin/test -w "/" ; then
 
     for x in $(cat /proc/cmdline); do
         case "$x" in
-            puavo.img.dev=*)
+        puavo.img.dev=*)
             image_dev="${x#puavo.img.dev=}"
         ;;
-            puavo.img.delta=*)
+        puavo.img.delta=*)
             delta_name="${x#puavo.img.delta=}"
         ;;
         loop=*)
@@ -34,7 +34,7 @@ if ! chroot ${rootmnt} /usr/bin/test -w "/" ; then
         mkdir -p /images
         mount "${image_dev}" /images
 
-        # If puavo.img.delta is set generate directory for persistent image
+        # If puavo.img.delta is set - generate directory for persistent image
         # delta. Image name is forced to the delta_dir path to avoid
         # incompatible deltas between images.
         if [ "${delta_name}" != "" ]; then
