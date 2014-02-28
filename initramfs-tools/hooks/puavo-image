@@ -2,7 +2,11 @@
 
 [ "$1" = "prereqs" ] && exit 0
 
+set -eu
+
 . /usr/share/initramfs-tools/hook-functions
 
 copy_exec /usr/bin/basename
 
+manual_add_modules overlayfs
+manual_add_modules squashfs
