@@ -12,3 +12,4 @@ puavo-dch $(cat VERSION)
 puavo-debuild
 
 aptirepo-upload -r $APTIREPO_REMOTE -b "git-$(echo "$GIT_BRANCH" | cut -d / -f 2)" ../puavo-image*.changes
+
