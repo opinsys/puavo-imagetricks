@@ -5,6 +5,7 @@ set -x
 
 . /etc/environment
 
+
 sudo apt-get update
 sudo apt-get install -y --force-yes puavo-devscripts aptirepo-upload
 
