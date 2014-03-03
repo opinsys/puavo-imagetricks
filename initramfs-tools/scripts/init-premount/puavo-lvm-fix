@@ -7,33 +7,36 @@ prereqs()
      echo "$PREREQ"
 }
 
-mountfail()
-{
-    if [ -x /sbin/lvm ]; then
-        echo "puavo-lvm-fix: Fixing..."
-        set -x
-        /sbin/lvm vgscan
-        /sbin/lvm vgchange -a y --sysinit
-        exit 0
-    fi
-}
 
 case $1 in
     prereqs)
         prereqs
         exit 0
     ;;
-    mountfail)
-        mountfail
-        # did nothing. Exit with 1
-        exit 1
-    ;;
 esac
 
-. /scripts/functions
+set -eu
 
-echo "Registering puavo-lvm-fix as mountroot_fail_hook"
-add_mountroot_fail_hook "puavo-lvm-fix"
+exit_if_root_ok()
+{
+    if [ -b "${ROOT}" ]; then
+        echo "ROOT OK"
+        exit 0
+    fi
+}
 
-exit 0
+exit_if_root_ok
+
+if [ -x /sbin/lvm ]; then
+    i=0
+    while [ $i -lt 10 ]; do
+        echo "$i: fixing root ${ROOT}"
+        # /sbin/lvm vgscan
+        /sbin/lvm vgchange -a y --sysinit
+        i=$(($i + 1))
+
+        exit_if_root_ok
+        sleep 0.5
+    done
+fi
 
