@@ -3,9 +3,6 @@
 set -eu
 set -x
 
-. /etc/environment
-
-env
 
 sudo apt-get update
 sudo apt-get install -y --force-yes puavo-devscripts aptirepo-upload
